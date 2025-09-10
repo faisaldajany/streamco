@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crowd Management – Cost Estimator</title>
+  <title>StreamCo– Cost Estimator</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --accent:#111827; --ring:#e5e7eb;
@@ -16,6 +16,7 @@
     h1{font-size:24px;margin:0}
     .sub{color:var(--muted);font-size:14px}
     .btn{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:14px;box-shadow:var(--shadow);cursor:pointer}
+    .btn.outline{background:#fff;color:var(--accent);border:1px solid var(--ring)}
     .grid{display:grid;gap:18px}
     @media(min-width:860px){.grid.two{grid-template-columns:1fr 1fr}}
     .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px}
@@ -23,33 +24,56 @@
     .row{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
     .row strong{font-weight:700}
     .inp label{display:block;font-size:13px;color:var(--muted)}
-    .inp input{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--ring);border-radius:14px;font-size:14px;outline:none}
-    .inp input:focus{box-shadow:0 0 0 4px rgba(17,24,39,.08)}
+    .inp input,.inp select{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--ring);border-radius:14px;font-size:14px;outline:none;background:#fff}
+    .inp input:focus,.inp select:focus{box-shadow:0 0 0 4px rgba(17,24,39,.08)}
     .muted{color:var(--muted);font-size:12px;margin-top:6px}
     .total{font-size:30px;font-weight:800}
     .divider{height:1px;background:#eef0f4;margin:8px 0}
     .rates-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--ring);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
     footer{margin-top:8px;text-align:center;color:var(--muted);font-size:11px}
+
+    /* Print styles */
+    @media print{
+      .no-print{display:none !important}
+      body{background:#fff}
+      .report{box-shadow:none}
+    }
+    .report{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px;margin-top:16px}
+    .report h2{margin:0 0 10px 0}
+    .tbl{width:100%;border-collapse:collapse}
+    .tbl th,.tbl td{border:1px solid #e9eef3;padding:8px;text-align:left}
+    .tbl th{background:#f3f5f9}
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
+    <header class="no-print">
       <div>
-        <h1>StreamCO – Cost Estimator</h1>
-        <div class="sub">this page is for estimating costs</div>
+        <h1>Crowd Management – Cost Estimator</h1>
+        <div class="sub">Manager form · Styled · Caps apply per traveler</div>
       </div>
-      <button class="btn" id="resetBtn">Reset</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn outline" id="printBtn">Print Report</button>
+        <button class="btn" id="resetBtn">Reset</button>
+      </div>
     </header>
 
-    <div class="grid two">
+    <div class="grid two no-print">
       <section class="card">
-        <h2>Staff Counts</h2>
-        <div class="inp"><label>Regular Ushers<input type="number" min="0" id="ushers" value="0"></label></div>
-        <div class="inp"><label>Home Supervisors<input type="number" min="0" id="homeSup" value="0"></label></div>
-        <div class="inp"><label>Home Leaders<input type="number" min="0" id="homeLead" value="0"></label></div>
-        <div class="inp"><label>Traveler Supervisors<input type="number" min="0" id="travSup" value="0"></label></div>
+        <h2>Match Details</h2>
+        <div class="inp"><label>Client
+          <select id="client"></select>
+        </label></div>
+        <div class="inp"><label>Match (auto from client)
+          <select id="match"></select>
+        </label></div>
+        <div class="inp"><label>Match Manager
+          <input type="text" id="manager" placeholder="Manager full name" />
+        </label></div>
+        <div class="inp"><label>Date (optional)
+          <input type="date" id="matchDate" />
+        </label></div>
       </section>
 
       <section class="card">
@@ -60,11 +84,11 @@
       </section>
 
       <section class="card">
-        <h2>Additional Expenses (actual)</h2>
-        <div class="inp"><label>Water (SAR)<input type="number" min="0" id="water" value="0"></label></div>
-        <div class="inp"><label>Clothes (SAR)<input type="number" min="0" id="clothes" value="0"></label></div>
-        <div class="inp"><label>Washing (SAR)<input type="number" min="0" id="washing" value="0"></label></div>
-        <div class="inp"><label>Other (SAR)<input type="number" min="0" id="other" value="0"></label></div>
+        <h2>Staff Counts</h2>
+        <div class="inp"><label>Regular Ushers<input type="number" min="0" id="ushers" value="0"></label></div>
+        <div class="inp"><label>Home Supervisors<input type="number" min="0" id="homeSup" value="0"></label></div>
+        <div class="inp"><label>Home Leaders<input type="number" min="0" id="homeLead" value="0"></label></div>
+        <div class="inp"><label>Traveler Supervisors<input type="number" min="0" id="travSup" value="0"></label></div>
       </section>
 
       <section class="card">
@@ -83,9 +107,18 @@
           <div class="inp"><label>Hotel / Night / Traveler<input type="number" min="0" id="rHotel" value="250"></label></div>
         </div>
       </section>
+
+      <section class="card">
+        <h2>Additional Expenses (actual)</h2>
+        <div class="inp"><label>Water (SAR)<input type="number" min="0" id="water" value="0"></label></div>
+        <div class="inp"><label>Clothes (SAR)<input type="number" min="0" id="clothes" value="0"></label></div>
+        <div class="inp"><label>Washing (SAR)<input type="number" min="0" id="washing" value="0"></label></div>
+        <div class="inp"><label>Other (SAR)<input type="number" min="0" id="other" value="0"></label></div>
+      </section>
     </div>
 
-    <div class="grid two" style="margin-top:18px">
+    <!-- Totals -->
+    <div class="grid two no-print" style="margin-top:18px">
       <section class="card">
         <h2>Staff Costs (auto)</h2>
         <div class="row"><span>Ushers</span><span id="cUshers">0 SAR</span></div>
@@ -123,21 +156,83 @@
       </section>
     </div>
 
-    <footer>© StreamCO Company</footer>
+    <!-- Printable Report -->
+    <section class="report" id="report">
+      <h2>Match Cost Report</h2>
+      <table class="tbl" id="reportTable">
+        <tbody>
+          <tr><th style="width:240px">Client</th><td id="rClient">—</td></tr>
+          <tr><th>Match</th><td id="rMatch">—</td></tr>
+          <tr><th>Manager</th><td id="rManager">—</td></tr>
+          <tr><th>Date</th><td id="rDate">—</td></tr>
+          <tr><th>Currency</th><td id="rCurrency">SAR</td></tr>
+        </tbody>
+      </table>
+      <h3>Breakdown</h3>
+      <table class="tbl">
+        <thead><tr><th>Item</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Staff Total</td><td id="rrStaff">0</td></tr>
+          <tr><td>Traveler Cost Total (max)</td><td id="rrTrav">0</td></tr>
+          <tr><td>Additional Expenses</td><td id="rrAddl">0</td></tr>
+          <tr><th>Grand Total</th><th id="rrGrand">0</th></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="no-print">© StreamCO Company</footer>
   </div>
 
   <script>
+    // --- Client -> Matches mapping from your list ---
+    const CLIENT_MATCHES = {
+      "Al-Nassr": [
+        "vs Al Hazem","vs Al Fayha","vs Al Khaleej","vs Al Najma","vs Al Okhdood","vs Al Qadsiah","vs Al Shabab","vs Al Taawoun","vs Al Ittihad","vs Al Ahli","vs Al Hilal","vs Al Ettifaq"
+      ],
+      "Al-Qadsiah": [
+        "vs Neom SC","vs Al Okhdood","vs Al Kholood","vs Al Ahli","vs Al Riyadh","vs Al Nassr","vs Al Fayha","vs Al Khaleej","vs Al Fateh","vs Al Taawoun","vs Al Najma","vs Al Hilal","vs Al Ettifaq","vs Damac","vs Al Hazem"
+      ],
+      "Al-Okhdood": [
+        "vs Al Taawoun","vs Al Hazem","vs Al Najma","vs Damac","vs Al Shabab","vs Al Fateh","vs Al Ahli","vs Al Kholood","vs Al Khaleej","vs Neom SC","vs Al Qadsiah","vs Al Fayha","vs Al Nassr","vs Al Ettifaq"
+      ],
+      "Neom SC": [
+        "vs Al Okhdood","vs Al Qadsiah","vs Al Khaleej","vs Al Nassr","vs Al Riyadh","vs Al Fateh","vs Al Shabab","vs Al Hilal","vs Al Fayha","vs Al Najma","vs Al Ittihad","vs Al Hazem","vs Al Ahli","vs Al Ettifaq"
+      ]
+    };
+
     const $ = (id) => document.getElementById(id);
     const nf = (n) => new Intl.NumberFormat().format(isFinite(n) ? Math.round(n) : 0);
-
     const ids = [
       'ushers','homeSup','homeLead','travSup','travelers','nights',
       'water','clothes','washing','other',
-      'rUsher','rHomeSup','rHomeLead','rTravSup','rTicket','rGas','rMeals','rHotel','currency'
+      'rUsher','rHomeSup','rHomeLead','rTravSup','rTicket','rGas','rMeals','rHotel','currency',
+      'client','match','manager','matchDate'
     ];
 
-    ids.forEach(id=> $(id).addEventListener('input', recalc));
-    $('resetBtn').addEventListener('click', () => { ids.forEach(id=> $(id).value = (id==='currency'?'SAR':0)); recalc(); });
+    // Populate clients and matches
+    (function initClientSelect(){
+      const c = $('client');
+      c.innerHTML = '<option value="" disabled selected>Select client</option>' + Object.keys(CLIENT_MATCHES).map(name=>`<option>${name}</option>`).join('');
+      c.addEventListener('change', ()=>{
+        const m = $('match');
+        const list = CLIENT_MATCHES[c.value] || [];
+        m.innerHTML = list.map(x=>`<option>${x}</option>`).join('');
+        recalc();
+      });
+      // initialize match list
+      $('match').innerHTML = '';
+    })();
+
+    ids.forEach(id=> $(id)?.addEventListener('input', recalc));
+    $('resetBtn').addEventListener('click', () => { 
+      ids.forEach(id=> { if(!$(id)) return; $(id).value = (id==='currency'?'SAR': (id==='client'?'':0)); });
+      $('match').innerHTML='';
+      $('manager').value='';
+      $('matchDate').value='';
+      recalc(); 
+    });
+
+    $('printBtn').addEventListener('click', ()=>{ updateReport(); window.print(); });
 
     function num(v){ const n = Number(v); return isFinite(n) ? n : 0; }
 
@@ -191,6 +286,21 @@
       $('addlTotal').textContent = nf(addlTotal) + ' ' + currency;
 
       $('grand').textContent = nf(grand) + ' ' + currency;
+
+      updateReport();
+    }
+
+    function updateReport(){
+      const currency = $('currency').value || 'SAR';
+      $('rClient').textContent = $('client').value || '—';
+      $('rMatch').textContent  = $('match').value || '—';
+      $('rManager').textContent= $('manager').value || '—';
+      $('rDate').textContent   = $('matchDate').value || '—';
+      $('rCurrency').textContent = currency;
+      $('rrStaff').textContent = $('staffTotal').textContent;
+      $('rrTrav').textContent  = $('travTotal').textContent;
+      $('rrAddl').textContent  = $('addlTotal').textContent;
+      $('rrGrand').textContent = $('grand').textContent;
     }
 
     recalc();
