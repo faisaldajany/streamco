@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crowd Management – Cost Estimator</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --accent:#111827; --ring:#e5e7eb;
+      --shadow:0 10px 25px rgba(0,0,0,.06);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text)}
+    .container{max-width:1100px;margin:0 auto;padding:28px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    h1{font-size:24px;margin:0}
+    .sub{color:var(--muted);font-size:14px}
+    .btn{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:14px;box-shadow:var(--shadow);cursor:pointer}
+    .grid{display:grid;gap:18px}
+    @media(min-width:860px){.grid.two{grid-template-columns:1fr 1fr}}
+    .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+    .card h2{margin:0 0 10px 0;font-size:18px}
+    .row{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
+    .row strong{font-weight:700}
+    .inp label{display:block;font-size:13px;color:var(--muted)}
+    .inp input{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--ring);border-radius:14px;font-size:14px;outline:none}
+    .inp input:focus{box-shadow:0 0 0 4px rgba(17,24,39,.08)}
+    .muted{color:var(--muted);font-size:12px;margin-top:6px}
+    .total{font-size:30px;font-weight:800}
+    .divider{height:1px;background:#eef0f4;margin:8px 0}
+    .rates-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--ring);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
+    footer{margin-top:8px;text-align:center;color:var(--muted);font-size:11px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Crowd Management – Cost Estimator</h1>
+        <div class="sub">Styled single‑file version · caps apply per traveler</div>
+      </div>
+      <button class="btn" id="resetBtn">Reset</button>
+    </header>
+
+    <div class="grid two">
+      <section class="card">
+        <h2>Staff Counts</h2>
+        <div class="inp"><label>Regular Ushers<input type="number" min="0" id="ushers" value="0"></label></div>
+        <div class="inp"><label>Home Supervisors<input type="number" min="0" id="homeSup" value="0"></label></div>
+        <div class="inp"><label>Home Leaders<input type="number" min="0" id="homeLead" value="0"></label></div>
+        <div class="inp"><label>Traveler Supervisors<input type="number" min="0" id="travSup" value="0"></label></div>
+      </section>
+
+      <section class="card">
+        <h2>Travelers</h2>
+        <div class="inp"><label>Number of Travelers<input type="number" min="0" id="travelers" value="0"></label></div>
+        <div class="inp"><label>Hotel Nights per Traveler<input type="number" min="0" id="nights" value="0"></label></div>
+        <div class="muted">Caps: Ticket 600×traveler, Gas 300×traveler, Meals 120×traveler, Hotel 250×traveler×nights</div>
+      </section>
+
+      <section class="card">
+        <h2>Additional Expenses (actual)</h2>
+        <div class="inp"><label>Water (SAR)<input type="number" min="0" id="water" value="0"></label></div>
+        <div class="inp"><label>Clothes (SAR)<input type="number" min="0" id="clothes" value="0"></label></div>
+        <div class="inp"><label>Washing (SAR)<input type="number" min="0" id="washing" value="0"></label></div>
+        <div class="inp"><label>Other (SAR)<input type="number" min="0" id="other" value="0"></label></div>
+      </section>
+
+      <section class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <h2>Rates</h2>
+          <span class="pill"><span>Currency</span><input id="currency" value="SAR" style="border:0;outline:none;width:70px"></span>
+        </div>
+        <div class="rates-grid">
+          <div class="inp"><label>Usher Rate<input type="number" min="0" id="rUsher" value="150"></label></div>
+          <div class="inp"><label>Home Supervisor<input type="number" min="0" id="rHomeSup" value="250"></label></div>
+          <div class="inp"><label>Home Leader<input type="number" min="0" id="rHomeLead" value="500"></label></div>
+          <div class="inp"><label>Traveler Supervisor<input type="number" min="0" id="rTravSup" value="600"></label></div>
+          <div class="inp"><label>Ticket Max / Traveler<input type="number" min="0" id="rTicket" value="600"></label></div>
+          <div class="inp"><label>Gas Max / Traveler<input type="number" min="0" id="rGas" value="300"></label></div>
+          <div class="inp"><label>Meals Max / Traveler<input type="number" min="0" id="rMeals" value="120"></label></div>
+          <div class="inp"><label>Hotel / Night / Traveler<input type="number" min="0" id="rHotel" value="250"></label></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid two" style="margin-top:18px">
+      <section class="card">
+        <h2>Staff Costs (auto)</h2>
+        <div class="row"><span>Ushers</span><span id="cUshers">0 SAR</span></div>
+        <div class="row"><span>Home Supervisors</span><span id="cHomeSup">0 SAR</span></div>
+        <div class="row"><span>Home Leaders</span><span id="cHomeLead">0 SAR</span></div>
+        <div class="row"><span>Traveler Supervisors</span><span id="cTravSup">0 SAR</span></div>
+        <div class="divider"></div>
+        <div class="row"><strong>Staff Total</strong><strong id="staffTotal">0 SAR</strong></div>
+      </section>
+      
+      <section class="card">
+        <h2>Traveler Max Costs (auto)</h2>
+        <div class="row"><span>Tickets (max)</span><span id="cTicket">0 SAR</span></div>
+        <div class="row"><span>Gas (max)</span><span id="cGas">0 SAR</span></div>
+        <div class="row"><span>Meals (max)</span><span id="cMeals">0 SAR</span></div>
+        <div class="row"><span>Hotel (max)</span><span id="cHotel">0 SAR</span></div>
+        <div class="divider"></div>
+        <div class="row"><strong>Traveler Cost Total</strong><strong id="travTotal">0 SAR</strong></div>
+      </section>
+
+      <section class="card">
+        <h2>Additional Expenses (actual)</h2>
+        <div class="row"><span>Water</span><span id="cWater">0 SAR</span></div>
+        <div class="row"><span>Clothes</span><span id="cClothes">0 SAR</span></div>
+        <div class="row"><span>Washing</span><span id="cWashing">0 SAR</span></div>
+        <div class="row"><span>Other</span><span id="cOther">0 SAR</span></div>
+        <div class="divider"></div>
+        <div class="row"><strong>Additional Total</strong><strong id="addlTotal">0 SAR</strong></div>
+      </section>
+
+      <section class="card">
+        <h2>Grand Total</h2>
+        <div class="total" id="grand">0 SAR</div>
+        <div class="muted">Grand Total = Staff Total + Traveler Max Total + Additional Expenses</div>
+      </section>
+    </div>
+
+    <footer>© Your Crowd Management Company</footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const nf = (n) => new Intl.NumberFormat().format(isFinite(n) ? Math.round(n) : 0);
+
+    const ids = [
+      'ushers','homeSup','homeLead','travSup','travelers','nights',
+      'water','clothes','washing','other',
+      'rUsher','rHomeSup','rHomeLead','rTravSup','rTicket','rGas','rMeals','rHotel','currency'
+    ];
+
+    ids.forEach(id=> $(id).addEventListener('input', recalc));
+    $('resetBtn').addEventListener('click', () => { ids.forEach(id=> $(id).value = (id==='currency'?'SAR':0)); recalc(); });
+
+    function num(v){ const n = Number(v); return isFinite(n) ? n : 0; }
+
+    function recalc(){
+      const currency = $('currency').value || 'SAR';
+      // counts
+      const ushers = num($('ushers').value), homeSup = num($('homeSup').value), homeLead = num($('homeLead').value), travSup = num($('travSup').value);
+      const travelers = num($('travelers').value), nights = num($('nights').value);
+      // extras
+      const water = num($('water').value), clothes = num($('clothes').value), washing = num($('washing').value), other = num($('other').value);
+      // rates
+      const rUsher = num($('rUsher').value), rHomeSup = num($('rHomeSup').value), rHomeLead = num($('rHomeLead').value), rTravSup = num($('rTravSup').value);
+      const rTicket = num($('rTicket').value), rGas = num($('rGas').value), rMeals = num($('rMeals').value), rHotel = num($('rHotel').value);
+
+      // staff
+      const cUsh = ushers * rUsher;
+      const cHS  = homeSup * rHomeSup;
+      const cHL  = homeLead * rHomeLead;
+      const cTS  = travSup * rTravSup;
+      const staffTotal = cUsh + cHS + cHL + cTS;
+
+      // traveler caps
+      const tTicket = travelers * rTicket;
+      const tGas    = travelers * rGas;
+      const tMeals  = travelers * rMeals;
+      const tHotel  = travelers * nights * rHotel;
+      const travTotal = tTicket + tGas + tMeals + tHotel;
+
+      // additional
+      const addlTotal = water + clothes + washing + other;
+
+      const grand = staffTotal + travTotal + addlTotal;
+
+      // render
+      $('cUshers').textContent = nf(cUsh) + ' ' + currency;
+      $('cHomeSup').textContent = nf(cHS) + ' ' + currency;
+      $('cHomeLead').textContent = nf(cHL) + ' ' + currency;
+      $('cTravSup').textContent = nf(cTS) + ' ' + currency;
+      $('staffTotal').textContent = nf(staffTotal) + ' ' + currency;
+
+      $('cTicket').textContent = nf(tTicket) + ' ' + currency;
+      $('cGas').textContent = nf(tGas) + ' ' + currency;
+      $('cMeals').textContent = nf(tMeals) + ' ' + currency;
+      $('cHotel').textContent = nf(tHotel) + ' ' + currency;
+      $('travTotal').textContent = nf(travTotal) + ' ' + currency;
+
+      $('cWater').textContent = nf(water) + ' ' + currency;
+      $('cClothes').textContent = nf(clothes) + ' ' + currency;
+      $('cWashing').textContent = nf(washing) + ' ' + currency;
+      $('cOther').textContent = nf(other) + ' ' + currency;
+      $('addlTotal').textContent = nf(addlTotal) + ' ' + currency;
+
+      $('grand').textContent = nf(grand) + ' ' + currency;
+    }
+
+    recalc();
+  </script>
+</body>
+</html>
